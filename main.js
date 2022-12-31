@@ -1,4 +1,4 @@
-var endpoint = "https://www.jsonstore.io/8ba4fd855086288421f770482e372ccb5a05d906269a34da5884f39eed0418a1";
+var endpoint = "https://7708-34-126-124-195.ap.ngrok.io/box_c9af16133a1134791703";
 
 function geturl(){
     var url = document.getElementById("urlinput").value;
