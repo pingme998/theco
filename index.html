@@ -1,11 +1,13 @@
+<!DOCTYPE html>
 <html>
-    <head>
-        <title>Simple URL Shortener</title>
-    </head>
-    <body>
-        <input type="url" id="urlinput">
-        <button onclick="shorturl()">Short The URL</button>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-        <script src="main.js"></script>
-    </body>
+<head>
+  <script src="links.json"></script>
+</head>
+<body>
+  <script>
+    var id = window.location.hash.substring(1); // retrieve the ID from the URL hash
+    var url = links[id]; // retrieve the URL from the JSON file using the ID
+    window.location.replace(url); // redirect to the URL
+  </script>
+</body>
 </html>
