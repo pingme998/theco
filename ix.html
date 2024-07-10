@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Drive Code Builder</title>
+    <title>oo0Drive Code Builder</title>
 </head>
 <body>
     <h1>Google Drive Code Builder</h1>
@@ -20,43 +20,47 @@
     <script>
         const GIST_URL = 'https://gist.githubusercontent.com/pingme998/f06447871932834ed28c697bd47d4393/raw/165393b1ee04a2e690a50c1dec5ad664218067fe/script.js';
 
-        document.getElementById('generateCode').onclick = async () => {
+        document.getElementById('generateCode').onclick = () => {
             const clientId = document.getElementById('clientId').value;
             const clientSecret = document.getElementById('clientSecret').value;
+            const redirectUri = 'http://127.0.0.1:53682/';
+            const authUrl = `https://accounts.google.com/o/oauth2/auth/oauthchooseaccount?access_type=offline&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=https://www.googleapis.com/auth/drive&state=_fAcC0m9CLx9BYdNh9TWOw&service=lso&o2v=1&ddm=0&flowName=GeneralOAuthFlow`;
 
-            const redirectUri = encodeURIComponent(window.location.origin + '/callback');
-            const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=https://www.googleapis.com/auth/drive`;
+            window.location.href = authUrl;
+        };
 
-            window.open(authUrl, 'authWindow', 'width=600,height=600');
+        window.onload = async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
 
-            window.addEventListener('message', async (event) => {
-                if (event.origin === window.location.origin && event.data.code) {
-                    const code = event.data.code;
-                    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        },
-                        body: `code=${code}&client_id=${clientId}&client_secret=${clientSecret}&redirect_uri=${redirectUri}&grant_type=authorization_code`
-                    });
+            if (code) {
+                const clientId = document.getElementById('clientId').value;
+                const clientSecret = document.getElementById('clientSecret').value;
+                const redirectUri = 'http://127.0.0.1:53682/';
 
-                    const tokens = await tokenResponse.json();
-                    const accessToken = tokens.access_token;
-                    const refreshToken = tokens.refresh_token;
+                const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `code=${code}&client_id=${clientId}&client_secret=${clientSecret}&redirect_uri=${encodeURIComponent(redirectUri)}&grant_type=authorization_code`
+                });
 
-                    const scriptResponse = await fetch(GIST_URL);
-                    let scriptContent = await scriptResponse.text();
+                const tokens = await tokenResponse.json();
+                const accessToken = tokens.access_token;
+                const refreshToken = tokens.refresh_token;
 
-                    scriptContent = scriptContent.replace('THE_CLIENT_ID', clientId);
-                    scriptContent = scriptContent.replace('THE_CLIENT_SECRET', clientSecret);
-                    scriptContent = scriptContent.replace('THE_ACCESS_TOKEN', accessToken);
-                    scriptContent = scriptContent.replace('THE_REFRESH_TOKEN', refreshToken);
+                const scriptResponse = await fetch(GIST_URL);
+                let scriptContent = await scriptResponse.text();
 
-                    document.getElementById('result').textContent = scriptContent;
-                }
-            }, { once: true });
+                scriptContent = scriptContent.replace('THE_CLIENT_ID', clientId);
+                scriptContent = scriptContent.replace('THE_CLIENT_SECRET', clientSecret);
+                scriptContent = scriptContent.replace('THE_ACCESS_TOKEN', accessToken);
+                scriptContent = scriptContent.replace('THE_REFRESH_TOKEN', refreshToken);
+
+                document.getElementById('result').textContent = scriptContent;
+            }
         };
     </script>
 </body>
 </html>
-
